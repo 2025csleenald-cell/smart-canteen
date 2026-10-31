@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Menu · Smart Canteen</title><link rel="stylesheet" href="css/style.css"></head><body>
+<nav><div class="wrap"><a class="logo" href="index.html"><i>S</i>Smart Canteen</a><div class="links"><a class="on" href="menu.html">Menu</a><a href="orders.html">My orders</a><a href="#" id="logout">Log out</a></div></div></nav>
+<main class="wrap"><h2 style="padding-top:34px">What are you having today?</h2>
+<div class="bar" id="categories"><button class="on">All</button><button>Meals</button><button>Snacks</button><button>Drinks</button><button>Desserts</button></div>
+<div class="grid" id="menuGrid">
+<article class="dish"><div class="pic">🍔</div><div class="body"><h3>Veg burger</h3><span class="meta">Ready in about 8 min</span><div class="foot"><span class="price">₹60</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+<article class="dish"><div class="pic">🍹</div><div class="body"><h3>Fresh juice</h3><span class="meta">Ready in about 4 min</span><div class="foot"><span class="price">₹40</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+<article class="dish"><div class="pic">🍛</div><div class="body"><h3>Paneer rice bowl</h3><span class="meta">Ready in about 12 min</span><div class="foot"><span class="price">₹90</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+<article class="dish"><div class="pic">🍟</div><div class="body"><h3>Masala fries</h3><span class="meta">Ready in about 6 min</span><div class="foot"><span class="price">₹50</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+<article class="dish"><div class="pic">☕</div><div class="body"><h3>Filter coffee</h3><span class="meta">Ready in about 3 min</span><div class="foot"><span class="price">₹25</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+<article class="dish"><div class="pic">🍰</div><div class="body"><h3>Chocolate brownie</h3><span class="meta">Ready in about 2 min</span><div class="foot"><span class="price">₹45</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
+</div></main>
+<div class="cartbar"><span><b id="cartCount">0 items</b> · ₹<span id="cartTotal">0</span></span><button class="btn" id="openCart">View order</button></div>
+<aside class="drawer" id="drawer" hidden><h2>Your order</h2><div class="lines" id="cartLines"></div>
+<label for="pickup">Pickup time</label><input type="time" id="pickup"><div class="total"><span>Total</span><span>₹0</span></div><button class="btn block" id="placeOrder">Place order</button><button class="btn ghost block" id="closeCart">Keep browsing</button></aside>
+<script src="js/api.js"></script><script src="js/menu.js"></script><script src="js/reviewPopup.js"></script></body></html>

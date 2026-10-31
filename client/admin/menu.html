@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage menu · Smart Canteen</title><link rel="stylesheet" href="../css/style.css"></head><body class="admin">
+<nav><div class="wrap"><a class="logo" href="dashboard.html"><i>S</i>Kitchen</a><div class="links"><a href="dashboard.html">Orders</a><a class="on" href="menu.html">Menu</a><a href="reviews.html">Reviews</a><a href="verify.html">Verify pickup</a><a href="#" id="logout">Log out</a></div></div></nav>
+<main class="wrap"><div class="mgrid">
+<form class="card" id="itemForm" style="color:var(--ink);max-width:none"><h2 id="formTitle">Add a dish</h2><p>Changes show on the student menu right away.</p>
+<label for="f-name">Dish name</label><input id="f-name" required>
+<label for="f-price">Price (₹)</label><input id="f-price" type="number" min="0" step="1" required>
+<label for="f-category">Category</label><select id="f-category"><option>Meals</option><option>Snacks</option><option>Drinks</option><option>Desserts</option></select>
+<label for="f-emoji">Emoji</label><input id="f-emoji" maxlength="4" placeholder="🍔">
+<label for="f-prep">Prep time (minutes)</label><input id="f-prep" type="number" min="1" max="120" value="5" required>
+<label for="f-station">Kitchen station</label><select id="f-station"><option value="general">General kitchen</option><option value="grill">Grill</option><option value="juice">Juice bar</option></select>
+<label for="f-image">Photo (JPG, PNG or WebP, max 2 MB)</label><input id="f-image" type="file" accept="image/jpeg,image/png,image/webp">
+<div class="chk"><input id="f-available" type="checkbox" checked><label for="f-available">Available to order</label></div>
+<p class="err" id="error" role="alert"></p><button class="btn alt block" type="submit" id="saveBtn">Add dish</button>
+<button class="btn ghost block" type="button" id="cancelEdit" style="margin-top:10px" hidden>Cancel editing</button></form>
+<section><h2 style="margin-bottom:14px">Current menu</h2><div id="items"></div></section>
+</div></main><script src="../js/api.js"></script><script src="../js/adminMenu.js"></script></body></html>

@@ -1,0 +1,9 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Create account · Smart Canteen</title><link rel="stylesheet" href="css/style.css"></head><body>
+<div class="auth"><aside><a class="logo" href="index.html"><i>S</i>Smart Canteen</a><div><h1 style="font-size:clamp(2rem,4vw,3rem)">Two minutes to never wait in line again.</h1><p>Use your WhatsApp number so we can message you when your food is ready.</p></div><small>Student portal</small></aside>
+<main><form class="card" id="registerForm"><h2>Create your account</h2><p>It's free for all students.</p>
+<label for="name">Full name</label><input id="name" required>
+<label for="phone">WhatsApp number</label><input id="phone" type="tel" placeholder="+91 98765 43210" required>
+<label for="email">Email</label><input id="email" type="email" required>
+<label for="password">Password</label><input id="password" type="password" minlength="6" required>
+<p class="err" id="error" role="alert"></p><button class="btn block" type="submit">Create account</button>
+<p class="alt-link">Already registered? <a href="login.html">Log in</a></p></form></main></div><script src="js/api.js"></script><script src="js/studentAuth.js"></script></body></html>

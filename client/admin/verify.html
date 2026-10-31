@@ -1,0 +1,7 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify pickup · Smart Canteen</title><link rel="stylesheet" href="../css/style.css"></head><body class="admin">
+<nav><div class="wrap"><a class="logo" href="dashboard.html"><i>S</i>Kitchen</a><div class="links"><a href="dashboard.html">Orders</a><a href="menu.html">Menu</a><a href="reviews.html">Reviews</a><a class="on" href="verify.html">Verify pickup</a><a href="#" id="logout">Log out</a></div></div></nav>
+<main class="auth" style="min-height:calc(100vh - 64px);grid-template-columns:1fr"><div style="display:grid;place-items:center;padding:24px"><form class="card" id="verifyForm" style="color:var(--ink)"><h2>Verify pickup</h2><p>Enter the order ID and the code the student shows.</p>
+<label for="orderId">Order ID</label><input id="orderId" placeholder="CAN1024" required>
+<label for="otp">6-digit code</label><input id="otp" inputmode="numeric" maxlength="6" placeholder="••••••" style="text-align:center;font:700 1.6rem var(--head);letter-spacing:.3em" required>
+<p class="err" id="error" role="alert"></p><button class="btn block" type="submit">Verify and hand over</button>
+<button class="btn ghost block" type="button" id="sendCode" style="margin-top:10px">Send / resend code to student</button></form></div></main><script src="../js/api.js"></script><script src="../js/verify.js"></script></body></html>
