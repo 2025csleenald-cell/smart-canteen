@@ -1,6 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Menu · Smart Canteen</title><link rel="stylesheet" href="css/style.css"></head><body>
-<nav><div class="wrap"><a class="logo" href="index.html"><i>S</i>Smart Canteen</a><div class="links"><a class="on" href="menu.html">Menu</a><a href="orders.html">My orders</a><a href="#" id="logout">Log out</a></div></div></nav>
-<main class="wrap"><h2 style="padding-top:34px">What are you having today?</h2>
+<nav><div class="wrap"><a class="logo" href="index.html"><i>S</i>Smart Canteen</a><div class="navright"><div class="links"><a class="on" href="menu.html">Menu</a></div>
+<div class="acct"><button class="acct-btn" id="acctBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Account menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></button>
+<div class="acct-menu" id="acctMenu" hidden><div class="acct-head"><b id="acctName">My account</b><small id="acctEmail"></small></div>
+<a class="acct-mobile" href="menu.html">Menu</a><a href="orders.html">My orders</a><a href="profile.html">Profile</a><a class="out" href="#" id="logout">Log out</a></div></div></div></div></nav>
+<main class="wrap"><div class="slotbar"><div><span class="slot-label" id="slotLabel">Today's menu</span><h2 id="menuTitle">What are you having today?</h2></div><p id="slotNote"></p></div>
 <div class="bar" id="categories"><button class="on">All</button><button>Meals</button><button>Snacks</button><button>Drinks</button><button>Desserts</button></div>
 <div class="grid" id="menuGrid">
 <article class="dish"><div class="pic">🍔</div><div class="body"><h3>Veg burger</h3><span class="meta">Ready in about 8 min</span><div class="foot"><span class="price">₹60</span><div class="qty"><button aria-label="Remove one">−</button><b>0</b><button aria-label="Add one">+</button></div></div></div></article>
@@ -13,4 +16,4 @@
 <div class="cartbar"><span><b id="cartCount">0 items</b> · ₹<span id="cartTotal">0</span></span><button class="btn" id="openCart">View order</button></div>
 <aside class="drawer" id="drawer" hidden><h2>Your order</h2><div class="lines" id="cartLines"></div>
 <label for="pickup">Pickup time</label><input type="time" id="pickup"><div class="total"><span>Total</span><span>₹0</span></div><button class="btn block" id="placeOrder">Place order</button><button class="btn ghost block" id="closeCart">Keep browsing</button></aside>
-<script src="js/api.js"></script><script src="js/menu.js"></script><script src="js/reviewPopup.js"></script></body></html>
+<script src="js/api.js"></script><script src="js/menu.js"></script><script src="js/reviewPopup.js"></script><script src="js/accountMenu.js"></script></body></html>

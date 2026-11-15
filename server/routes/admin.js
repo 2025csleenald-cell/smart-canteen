@@ -1,17 +1,18 @@
 const router = require('express').Router();
-const { Order, OtpRecord, MenuItem, Review } = require('../models');
+const { Order, OtpRecord, MenuItem, Review, Setting } = require('../models');
+const { currentSlot, SLOTS } = require('../services/menuTimeService');
 const { createOtp, verifyOtp } = require('../services/otpService');
 const { sendTemplate } = require('../services/whatsappService');
 const { ah } = require('../middleware/auth');
- 
+
 const ACTIVE = ['placed', 'queued', 'preparing', 'ready', 'delayed'];
 const NEXT = { placed: ['preparing'], queued: ['preparing'], delayed: ['preparing'], preparing: ['ready', 'delayed'] };
- 
+
 router.get('/orders', ah(async (req, res) => {
   const status = req.query.status ? req.query.status.split(',') : ACTIVE;
   res.json(await Order.find({ status: { $in: status } }).populate('student', 'name phone').sort({ createdAt: 1 }));
 }));
- 
+
 router.get('/stats', ah(async (req, res) => {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const count = (f) => Order.countDocuments(f);
@@ -23,14 +24,14 @@ router.get('/stats', ah(async (req, res) => {
   ]);
   res.json({ total, queued, preparing, ready });
 }));
- 
+
 router.patch('/orders/:orderId/status', ah(async (req, res) => {
   const order = await Order.findOne({ orderId: req.params.orderId }).populate('student', 'phone');
   if (!order) return res.status(404).json({ message: 'Order not found.' });
   const { status } = req.body;
   if (!(NEXT[order.status] || []).includes(status))
     return res.status(400).json({ message: `Cannot move an order from ${order.status} to ${status}.` });
- 
+
   order.status = status;
   if (status === 'ready') {
     order.readyAt = new Date();
@@ -46,7 +47,7 @@ router.patch('/orders/:orderId/status', ah(async (req, res) => {
   await order.save();
   res.json(order);
 }));
- 
+
 // The code is created when staff press Verify. It goes to the student, who reads it out at the counter.
 router.post('/orders/:orderId/send-otp', ah(async (req, res) => {
   const order = await Order.findOne({ orderId: String(req.params.orderId).toUpperCase() }).populate('student', 'phone');
@@ -54,17 +55,17 @@ router.post('/orders/:orderId/send-otp', ah(async (req, res) => {
   if (order.status !== 'ready') return res.status(400).json({ message: `Order is ${order.status}, not ready for pickup.` });
   const blocked = await OtpRecord.findOne({ order: order._id, used: false, blockedUntil: { $gt: new Date() } });
   if (blocked) return res.status(429).json({ message: 'Too many wrong attempts. Try again in a few minutes.' });
- 
+
   const otp = await createOtp(order);
   sendTemplate(order.student.phone, 'pickup_otp', [otp], { otp, fallback: `Your pickup OTP for ${order.orderId}: ${otp}` });
   res.json({ message: 'Code sent to the student. Ask them to read it out.' });
 }));
- 
+
 router.post('/orders/:orderId/verify-otp', ah(async (req, res) => {
   const order = await Order.findOne({ orderId: String(req.params.orderId).toUpperCase() });
   if (!order) return res.status(404).json({ message: 'Order not found.' });
   if (order.status !== 'ready') return res.status(400).json({ message: `Order is ${order.status}, not ready for pickup.` });
- 
+
   const r = await verifyOtp(order, req.body.otp);
   if (!r.ok) return res.status(r.code).json({ message: r.message });
   order.status = 'collected';
@@ -72,7 +73,7 @@ router.post('/orders/:orderId/verify-otp', ah(async (req, res) => {
   await order.save();
   res.json({ message: 'Verified. Hand over the order.', order });
 }));
- 
+
 // Late pickup: give the student more time
 router.post('/orders/:orderId/extend', ah(async (req, res) => {
   const order = await Order.findOne({ orderId: req.params.orderId }).populate('student', 'phone');
@@ -88,7 +89,7 @@ router.post('/orders/:orderId/extend', ah(async (req, res) => {
   });
   res.json(order);
 }));
- 
+
 // ---------- Dish photos ----------
 const crypto = require('crypto');
 const fs = require('fs');
@@ -106,7 +107,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => (EXT[file.mimetype] ? cb(null, true) : cb(new Error('Only JPG, PNG or WebP images are allowed.')))
 });
 const removeFile = (url) => { if (url && url.startsWith('/uploads/')) fs.unlink(path.join(UPLOAD_DIR, path.basename(url)), () => {}); };
- 
+
 router.post('/menu/:id/image',
   (req, res, next) => upload.single('image')(req, res, (err) => {
     if (err) return res.status(400).json({ message: err.code === 'LIMIT_FILE_SIZE' ? 'Image must be under 2 MB.' : err.message });
@@ -121,16 +122,17 @@ router.post('/menu/:id/image',
     await item.save();
     res.json(item);
   }));
- 
+
 // ---------- Reviews ----------
 router.get('/reviews', ah(async (req, res) => {
   res.json(await Review.find().populate('student', 'name').populate('order', 'orderId').sort({ createdAt: -1 }).limit(100));
 }));
- 
+
 // ---------- Menu management ----------
 const CATEGORIES = ['Meals', 'Snacks', 'Drinks', 'Desserts'];
 const STATIONS = ['grill', 'juice', 'general'];
- 
+const SLOT_KEYS = ['morning', 'afternoon', 'evening'];
+
 function cleanItem(b) {
   const d = {};
   if (b.name !== undefined) d.name = String(b.name).trim();
@@ -140,29 +142,50 @@ function cleanItem(b) {
   if (b.prepTimeMins !== undefined) d.prepTimeMins = Number(b.prepTimeMins);
   if (b.stationType !== undefined) d.stationType = b.stationType;
   if (b.available !== undefined) d.available = Boolean(b.available);
+  if (b.slots !== undefined) d.slots = Array.isArray(b.slots) ? b.slots.filter((s) => SLOT_KEYS.includes(s)) : [];
   return d;
 }
- 
+
 function checkItem(d, isNew) {
   if ((isNew || 'name' in d) && !d.name) return 'Dish name is required.';
   if ((isNew || 'price' in d) && !(d.price >= 0 && d.price <= 100000)) return 'Enter a valid price.';
   if ((isNew || 'category' in d) && !CATEGORIES.includes(d.category)) return 'Pick a category.';
   if ((isNew || 'prepTimeMins' in d) && !(d.prepTimeMins >= 1 && d.prepTimeMins <= 120)) return 'Prep time must be 1 to 120 minutes.';
   if ('stationType' in d && !STATIONS.includes(d.stationType)) return 'Pick a valid station.';
+  if ('slots' in d && !d.slots.length) return 'Pick at least one time of day for this dish.';
   return null;
 }
- 
+
+// When each menu starts. Students see the menu whose start time was most recent.
+router.get('/menu-timings', ah(async (req, res) => {
+  const { open, current, timings } = await currentSlot();
+  res.json({ timings, open, current: current ? current.key : null, labels: Object.fromEntries(SLOTS.map((s) => [s.key, s.label])) });
+}));
+
+router.put('/menu-timings', ah(async (req, res) => {
+  const t = {};
+  for (const k of [...SLOT_KEYS, 'closing']) {
+    const v = String(req.body[k] || '');
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) return res.status(400).json({ message: 'Enter a valid time for each menu.' });
+    t[k] = v;
+  }
+  if (!(t.morning < t.afternoon && t.afternoon < t.evening && t.evening < t.closing))
+    return res.status(400).json({ message: 'Times must go in order: morning, afternoon, evening, then closing time.' });
+  await Setting.findByIdAndUpdate('menuTimings', { value: t }, { upsert: true });
+  res.json({ timings: t });
+}));
+
 router.get('/menu', ah(async (req, res) => {
   res.json(await MenuItem.find().sort({ category: 1, name: 1 })); // includes hidden items
 }));
- 
+
 router.post('/menu', ah(async (req, res) => {
   const d = cleanItem(req.body);
   const err = checkItem(d, true);
   if (err) return res.status(400).json({ message: err });
   res.status(201).json(await MenuItem.create(d));
 }));
- 
+
 router.patch('/menu/:id', ah(async (req, res) => {
   const d = cleanItem(req.body);
   const err = checkItem(d, false);
@@ -171,13 +194,12 @@ router.patch('/menu/:id', ah(async (req, res) => {
   if (!item) return res.status(404).json({ message: 'Dish not found.' });
   res.json(item);
 }));
- 
+
 router.delete('/menu/:id', ah(async (req, res) => {
   const item = await MenuItem.findByIdAndDelete(req.params.id); // past orders keep their own copy of name and price
   if (!item) return res.status(404).json({ message: 'Dish not found.' });
   removeFile(item.image);
   res.json({ message: 'Dish deleted.' });
 }));
- 
+
 module.exports = router;
- 

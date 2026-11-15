@@ -5,6 +5,8 @@
 <label for="f-name">Dish name</label><input id="f-name" required>
 <label for="f-price">Price (₹)</label><input id="f-price" type="number" min="0" step="1" required>
 <label for="f-category">Category</label><select id="f-category"><option>Meals</option><option>Snacks</option><option>Drinks</option><option>Desserts</option></select>
+<label>Served during</label>
+<div class="slots"><label class="chk"><input id="f-slot-morning" type="checkbox" checked>Morning</label><label class="chk"><input id="f-slot-afternoon" type="checkbox" checked>Afternoon</label><label class="chk"><input id="f-slot-evening" type="checkbox" checked>Evening</label></div>
 <label for="f-emoji">Emoji</label><input id="f-emoji" maxlength="4" placeholder="🍔">
 <label for="f-prep">Prep time (minutes)</label><input id="f-prep" type="number" min="1" max="120" value="5" required>
 <label for="f-station">Kitchen station</label><select id="f-station"><option value="general">General kitchen</option><option value="grill">Grill</option><option value="juice">Juice bar</option></select>
@@ -12,5 +14,11 @@
 <div class="chk"><input id="f-available" type="checkbox" checked><label for="f-available">Available to order</label></div>
 <p class="err" id="error" role="alert"></p><button class="btn alt block" type="submit" id="saveBtn">Add dish</button>
 <button class="btn ghost block" type="button" id="cancelEdit" style="margin-top:10px" hidden>Cancel editing</button></form>
-<section><h2 style="margin-bottom:14px">Current menu</h2><div id="items"></div></section>
+<section>
+<form class="card" id="timingsForm" style="color:var(--ink);max-width:none;margin-bottom:24px"><h3>Menu timings</h3><p id="nowNote">Each menu runs until the next one starts. After the closing time the canteen is closed and students cannot order.</p>
+<div class="trow"><div><label for="t-morning">Morning menu starts</label><input id="t-morning" type="time" required></div><div><label for="t-afternoon">Afternoon menu starts</label><input id="t-afternoon" type="time" required></div><div><label for="t-evening">Evening menu starts</label><input id="t-evening" type="time" required></div><div><label for="t-closing">Canteen closes at</label><input id="t-closing" type="time" required></div></div>
+<p class="err" id="timingsMsg" role="alert"></p><button class="btn alt" type="submit">Save timings</button></form>
+<h2 style="margin-bottom:6px">Current menu</h2>
+<div class="bar" id="slotFilter"><button type="button" data-slot="all" class="on">All dishes</button><button type="button" data-slot="morning">Morning</button><button type="button" data-slot="afternoon">Afternoon</button><button type="button" data-slot="evening">Evening</button></div>
+<div id="items"></div></section>
 </div></main><script src="../js/api.js"></script><script src="../js/adminMenu.js"></script></body></html>

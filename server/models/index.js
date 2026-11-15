@@ -1,30 +1,34 @@
 const { Schema, model, Types } = require('mongoose');
- 
+
 const User = model('User', new Schema({
   name: { type: String, required: true, trim: true },
-  phone: { type: String, required: true, unique: true },
+  usn: { type: String, unique: true, sparse: true, uppercase: true, trim: true }, // students only
+  emailVerified: Boolean, // false until the student opens the emailed link (older accounts have no value and can still log in)
+  verifyTokenHash: String,
+  verifyExpires: Date,
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ['student', 'admin'], default: 'student' }
 }, { timestamps: true }));
- 
+
 const MenuItem = model('MenuItem', new Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   category: { type: String, enum: ['Meals', 'Snacks', 'Drinks', 'Desserts'], required: true },
   emoji: { type: String, default: '🍽️' },
   image: { type: String, default: '' },
+  slots: { type: [{ type: String, enum: ['morning', 'afternoon', 'evening'] }], default: ['morning', 'afternoon', 'evening'] }, // when the dish is on the menu
   prepTimeMins: { type: Number, default: 5 },
   stationType: { type: String, default: 'general' },
   available: { type: Boolean, default: true }
 }));
- 
+
 const Station = model('Station', new Schema({
   name: String,
   type: { type: String, default: 'general' },
   availableAt: { type: Date, default: () => new Date(0) }
 }));
- 
+
 const Order = model('Order', new Schema({
   orderId: { type: String, unique: true },
   student: { type: Types.ObjectId, ref: 'User', required: true },
@@ -42,7 +46,7 @@ const Order = model('Order', new Schema({
   late: { type: Boolean, default: false },
   lateNotified: { type: Boolean, default: false }
 }, { timestamps: true }));
- 
+
 const OtpRecord = model('OtpRecord', new Schema({
   order: { type: Types.ObjectId, ref: 'Order', required: true },
   otpHash: String,
@@ -52,15 +56,16 @@ const OtpRecord = model('OtpRecord', new Schema({
   used: { type: Boolean, default: false },
   blockedUntil: Date
 }, { timestamps: true }));
- 
+
 const Review = model('Review', new Schema({
   order: { type: Types.ObjectId, ref: 'Order', required: true, unique: true }, // one review per order
   student: { type: Types.ObjectId, ref: 'User', required: true },
   rating: { type: Number, min: 1, max: 5, required: true },
   comment: { type: String, maxlength: 500, default: '' }
 }, { timestamps: true }));
- 
+
+const Setting = model('Setting', new Schema({ _id: String, value: Schema.Types.Mixed }));
+
 const Counter = model('Counter', new Schema({ _id: String, seq: { type: Number, default: 1000 } }));
- 
-module.exports = { User, MenuItem, Station, Order, OtpRecord, Counter, Review };
- 
+
+module.exports = { User, MenuItem, Station, Order, OtpRecord, Counter, Review, Setting };

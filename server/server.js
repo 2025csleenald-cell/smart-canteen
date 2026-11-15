@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -13,6 +14,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
  
 app.use('/api/auth/admin/login', rateLimit({ windowMs: 15 * 60 * 1000, max: 10 }));
 app.use('/api/auth/student/login', rateLimit({ windowMs: 15 * 60 * 1000, max: 20 }));
+app.use('/api/auth/register', rateLimit({ windowMs: 60 * 60 * 1000, max: 20 }));
  
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/menu', require('./routes/menu'));
@@ -32,4 +34,3 @@ connectDB().then(() => {
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`Smart Canteen running at http://localhost:${port}`));
 });
- 
