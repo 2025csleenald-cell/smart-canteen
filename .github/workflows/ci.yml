@@ -1,0 +1,35 @@
+
+name: Smart Canteen CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build and Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Check JavaScript Syntax
+        run: |
+          find server -type f -name "*.js" \
+            -not -path "*/node_modules/*" \
+            -print0 | xargs -0 -n1 node --check
+
+      - name: CI Completed
+        run: echo "Smart Canteen CI Pipeline Successful!"
